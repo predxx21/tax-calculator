@@ -1,14 +1,24 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: tax-pipeline-run
+  name: tax-pipeline-run-1
+  namespace: default
+  annotations:
+    tekton.dev/displayName: "Tax Calculator Pipeline Run"
 spec:
   pipelineRef:
     name: tax-pipeline
   params:
-    - name: image-tag
-      value: "us.icr.io/tu-namespace/tax-calculator:latest"
+    - name: image-name
+      value: "us.icr.io/jupchc-tc_pipeline/tax-calculator:latest"
   workspaces:
     - name: shared-workspace
-      persistentVolumeClaim:
-        claimName: shared-pvc
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+  timeout: "1h0m0s"
+  serviceAccountName: tekton-docker-auth
