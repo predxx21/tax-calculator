@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: tax-pipeline
+  namespace: default
 spec:
   tasks:
     - name: npm-install
@@ -13,7 +14,15 @@ spec:
       runAfter:
         - npm-install
     - name: build-image
-      taskRef:
-        name: build-docker
+      taskSpec:
+        steps:
+          - name: build
+            image: docker:20.10
+            script: |
+              docker build -t us.icr.io/jupch-tc_pipeline/tax-calculator:latest .
+          - name: push
+            image: docker:20.10
+            script: |
+              docker push us.icr.io/jupch-tc_pipeline/tax-calculator:latest
       runAfter:
         - run-tests
